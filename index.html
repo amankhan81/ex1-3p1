@@ -226,11 +226,11 @@ Anyone exploring an underground home for the first time is highly likely to noti
           );
         };
 
-        const Navigation = ({ exercises, currentExerciseIndex, setIndex, answers, isSubmitted, onFinish }) => {
+        const Navigation = ({ exercises, currentExerciseIndex, setIndex, answers, isSubmitted, onFinish, studentName, setStudentName }) => {
           return (
             <nav className="bg-white border-b border-gray-200 overflow-x-auto no-print">
               <div className="flex px-2 py-2 gap-2 min-w-max w-full justify-between items-center">
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     {exercises.map((ex, idx) => {
                       const hasAnswer = answers[ex.id] && Object.keys(answers[ex.id]).length > 0;
                       return (
@@ -248,6 +248,15 @@ Anyone exploring an underground home for the first time is highly likely to noti
                         </button>
                       );
                     })}
+                    {!isSubmitted && (
+                        <input 
+                            type="text" 
+                            placeholder="Student Name" 
+                            value={studentName}
+                            onChange={(e) => setStudentName(e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 ml-4 w-48"
+                        />
+                    )}
                 </div>
                 {!isSubmitted && (
                     <button
@@ -362,7 +371,6 @@ Anyone exploring an underground home for the first time is highly likely to noti
                             const userSubAns = answers[exercise.id]?.[sub.id] || '';
                             let isSubCorrect = false;
                             
-                            // Specific check for note making: strict slot matching based on variants provided
                             if (isSubmitted && !sub.locked && sub.variants) {
                                 isSubCorrect = checkTextAnswer(userSubAns, sub.variants);
                             }
@@ -408,13 +416,14 @@ Anyone exploring an underground home for the first time is highly likely to noti
           );
         };
 
-        const FullExamPrintView = ({ exercises, answers }) => {
+        const FullExamPrintView = ({ exercises, answers, studentName }) => {
           return (
             <div className="hidden print:block space-y-8 p-4">
               <div className="text-center mb-8 border-b pb-4">
                 <h1 className="text-2xl font-bold">Cambridge IGCSE™ English as a Second Language</h1>
                 <p>Paper 1 Reading and Writing (0510/12)</p>
                 <p className="mt-2">Candidate Responses</p>
+                {studentName && <p className="text-lg font-semibold mt-2 text-blue-800">Student: {studentName}</p>}
                 <p className="text-sm text-gray-500">Date: {new Date().toLocaleDateString()}</p>
               </div>
               
@@ -445,7 +454,7 @@ Anyone exploring an underground home for the first time is highly likely to noti
           );
         };
 
-        const ResultsSummary = ({ exercises, answers }) => {
+        const ResultsSummary = ({ exercises, answers, studentName }) => {
           let score = 0;
           let totalMarks = 0;
 
@@ -500,7 +509,8 @@ Anyone exploring an underground home for the first time is highly likely to noti
 
           return (
             <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg print:shadow-none print:w-full print:max-w-none print:mt-0 no-print">
-              <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Exam Results</h2>
+              <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">Ex.1 and Ex.3 Result</h2>
+              {studentName && <p className="text-center text-xl font-semibold text-blue-600 mb-6">Student: {studentName}</p>}
               
               <div className="flex justify-center mb-8">
                 <div className="bg-blue-50 p-6 rounded-lg text-center shadow-md border border-blue-100 min-w-[300px]">
@@ -533,6 +543,7 @@ Anyone exploring an underground home for the first time is highly likely to noti
           const [timeRemaining, setTimeRemaining] = useState(EXAM_DATA.meta.durationMinutes * 60);
           const [isSubmitted, setIsSubmitted] = useState(false);
           const [showSummary, setShowSummary] = useState(false);
+          const [studentName, setStudentName] = useState("");
 
           useEffect(() => {
             if (isSubmitted) return;
@@ -579,14 +590,16 @@ Anyone exploring an underground home for the first time is highly likely to noti
                   setIndex={(idx) => { setIndex(idx); setShowSummary(false); }} 
                   answers={answers}
                   isSubmitted={true}
-                  onFinish={() => {}} // Not needed here as summary view hides finish button
+                  onFinish={() => {}}
+                  studentName={studentName}
+                  setStudentName={setStudentName}
                 />
                 
                 {/* Print View Component (Hidden by default, shown on print) */}
-                <FullExamPrintView exercises={EXAM_DATA.exercises} answers={answers} />
+                <FullExamPrintView exercises={EXAM_DATA.exercises} answers={answers} studentName={studentName} />
                 
                 {/* Normal Summary View (Hidden on print) */}
-                <ResultsSummary exercises={EXAM_DATA.exercises} answers={answers} />
+                <ResultsSummary exercises={EXAM_DATA.exercises} answers={answers} studentName={studentName} />
               </div>
             );
           }
@@ -602,6 +615,8 @@ Anyone exploring an underground home for the first time is highly likely to noti
                 answers={answers}
                 isSubmitted={isSubmitted}
                 onFinish={handleSubmit}
+                studentName={studentName}
+                setStudentName={setStudentName}
               />
 
               <main className="flex-1 flex overflow-hidden print:overflow-visible print:block">
