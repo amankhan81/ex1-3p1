@@ -226,27 +226,37 @@ Anyone exploring an underground home for the first time is highly likely to noti
           );
         };
 
-        const Navigation = ({ exercises, currentExerciseIndex, setIndex, answers, isSubmitted }) => {
+        const Navigation = ({ exercises, currentExerciseIndex, setIndex, answers, isSubmitted, onFinish }) => {
           return (
             <nav className="bg-white border-b border-gray-200 overflow-x-auto no-print">
-              <div className="flex px-2 py-2 gap-2 min-w-max">
-                {exercises.map((ex, idx) => {
-                  const hasAnswer = answers[ex.id] && Object.keys(answers[ex.id]).length > 0;
-                  return (
+              <div className="flex px-2 py-2 gap-2 min-w-max w-full justify-between items-center">
+                <div className="flex gap-2">
+                    {exercises.map((ex, idx) => {
+                      const hasAnswer = answers[ex.id] && Object.keys(answers[ex.id]).length > 0;
+                      return (
+                        <button
+                          key={ex.id}
+                          onClick={() => setIndex(idx)}
+                          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2
+                            ${currentExerciseIndex === idx 
+                              ? 'bg-blue-600 text-white shadow' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                          {ex.title}
+                          {!isSubmitted && hasAnswer && <div className="w-2 h-2 rounded-full bg-green-500" />}
+                        </button>
+                      );
+                    })}
+                </div>
+                {!isSubmitted && (
                     <button
-                      key={ex.id}
-                      onClick={() => setIndex(idx)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2
-                        ${currentExerciseIndex === idx 
-                          ? 'bg-blue-600 text-white shadow' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                        onClick={onFinish}
+                        className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded hover:bg-red-700 shadow-sm ml-auto mr-2"
                     >
-                      {ex.title}
-                      {!isSubmitted && hasAnswer && <div className="w-2 h-2 rounded-full bg-green-500" />}
+                        Finish Exam
                     </button>
-                  );
-                })}
+                )}
               </div>
             </nav>
           );
@@ -569,6 +579,7 @@ Anyone exploring an underground home for the first time is highly likely to noti
                   setIndex={(idx) => { setIndex(idx); setShowSummary(false); }} 
                   answers={answers}
                   isSubmitted={true}
+                  onFinish={() => {}} // Not needed here as summary view hides finish button
                 />
                 
                 {/* Print View Component (Hidden by default, shown on print) */}
@@ -590,6 +601,7 @@ Anyone exploring an underground home for the first time is highly likely to noti
                 setIndex={setIndex} 
                 answers={answers}
                 isSubmitted={isSubmitted}
+                onFinish={handleSubmit}
               />
 
               <main className="flex-1 flex overflow-hidden print:overflow-visible print:block">
@@ -622,21 +634,8 @@ Anyone exploring an underground home for the first time is highly likely to noti
                   <ChevronLeft size={18} /> Previous
                 </button>
 
-                {!isSubmitted ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="flex items-center gap-2 px-6 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 font-bold shadow-sm"
-                  >
-                    <CheckCircle size={18} /> Finish Exam
-                  </button>
-                ) : (
-                  <button
-                     onClick={() => setShowSummary(true)}
-                     className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold"
-                  >
-                    View Summary
-                  </button>
-                )}
+                {/* Finish Exam Button Removed from Footer and moved to Nav */}
+                <div /> 
 
                 <button
                   onClick={() => setIndex(prev => Math.min(EXAM_DATA.exercises.length - 1, prev + 1))}
