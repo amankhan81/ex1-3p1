@@ -192,4 +192,89 @@
                 document.getElementById('start-screen').classList.add('hidden');
                 document.getElementById('quiz-screen').classList.add('hidden');
                 document.getElementById('result-screen').classList.add('hidden');
-                document.getElementById(screenId).classList.remove('
+                document.getElementById(screenId).classList.remove('hidden');
+            },
+
+            renderQuestion() {
+                const q = QUESTIONS[this.currentIndex];
+                this.isShowingFeedback = false;
+                
+                document.getElementById('sentence-text').innerText = `"${q.sentence}"`;
+                document.getElementById('question-counter').innerText = `${this.currentIndex + 1} / ${QUESTIONS.length}`;
+                document.getElementById('progress-bar').style.width = `${((this.currentIndex + 1) / QUESTIONS.length) * 100}%`;
+                
+                // Reset buttons
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-400', 'bg-rose-500/20', 'border-rose-500/50', 'text-rose-400', 'opacity-40');
+                    btn.disabled = false;
+                    const icon = btn.querySelector('svg');
+                    if(icon) icon.remove();
+                });
+
+                document.getElementById('feedback-area').classList.add('hidden');
+                document.getElementById('next-btn-text').innerText = this.currentIndex === QUESTIONS.length - 1 ? 'See Results' : 'Next Sentence';
+            },
+
+            answer(choice) {
+                if (this.isShowingFeedback) return;
+                this.isShowingFeedback = true;
+
+                const q = QUESTIONS[this.currentIndex];
+                const isCorrect = choice === q.answer;
+                if (isCorrect) this.score++;
+
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    const btnText = btn.querySelector('span').innerText;
+                    
+                    if (btnText === q.answer) {
+                        btn.classList.add('bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-400');
+                        btn.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                    } else if (btnText === choice && !isCorrect) {
+                        btn.classList.add('bg-rose-500/20', 'border-rose-500/50', 'text-rose-400');
+                        btn.innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                    } else {
+                        btn.classList.add('opacity-40');
+                    }
+                });
+
+                // Show Feedback Box
+                const feedbackBox = document.getElementById('feedback-box');
+                const feedbackText = document.getElementById('feedback-text');
+                
+                feedbackText.innerText = q.correction;
+                feedbackBox.className = `p-4 rounded-xl flex items-start gap-3 ${isCorrect ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300'}`;
+                
+                document.getElementById('feedback-area').classList.remove('hidden');
+            },
+
+            next() {
+                if (this.currentIndex < QUESTIONS.length - 1) {
+                    this.currentIndex++;
+                    this.renderQuestion();
+                } else {
+                    this.showResults();
+                }
+            },
+
+            showResults() {
+                this.showScreen('result-screen');
+                document.getElementById('final-score').innerText = this.score;
+                
+                let msg = "";
+                if (this.score === QUESTIONS.length) msg = "Incredible! You are a master of Yellowstone grammar.";
+                else if (this.score > 10) msg = "Great work! You've navigated the park like a pro.";
+                else msg = "Good effort! Take another tour to sharpen your skills.";
+                
+                document.getElementById('result-msg').innerText = msg;
+            },
+
+            restart() {
+                this.start();
+            }
+        };
+    </script>
+</body>
+</html>
