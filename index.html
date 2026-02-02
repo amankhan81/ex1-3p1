@@ -1,300 +1,195 @@
-import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, ChevronRight, RotateCcw, Award, MapPin, Info } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellowstone Grammar Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-const QUESTIONS = [
-  {
-    id: 1,
-    sentence: "She visited Yellowstone National Park, the most old national park in the world.",
-    answer: "Incorrect",
-    correction: "Should be 'the oldest national park'.",
-  },
-  {
-    id: 2,
-    sentence: "It is also the largest park in the United States.",
-    answer: "Correct",
-    correction: "Correct use of superlative 'largest'.",
-  },
-  {
-    id: 3,
-    sentence: "Of all the U.S. parks, Yellowstone has the most extensive wildlife preserve.",
-    answer: "Correct",
-    correction: "Correct use of 'most extensive'.",
-  },
-  {
-    id: 4,
-    sentence: "The park has much natural wonders that are amazing to behold.",
-    answer: "Incorrect",
-    correction: "Should be 'many natural wonders' (wonders are countable).",
-  },
-  {
-    id: 5,
-    sentence: "Among the park's better attractions are huge canyons, cascading waterfalls, and clear blue lakes.",
-    answer: "Incorrect",
-    correction: "Should be 'best attractions' when comparing more than two things.",
-  },
-  {
-    id: 6,
-    sentence: "There are most geysers and hot springs than any other place in the world.",
-    answer: "Incorrect",
-    correction: "Should be 'more geysers' for a comparison with 'than'.",
-  },
-  {
-    id: 7,
-    sentence: "Geysers are one of nature's most interesting phenomena.",
-    answer: "Correct",
-    correction: "Correct use of 'most interesting'.",
-  },
-  {
-    id: 8,
-    sentence: "Geysers make a most spectacular display as they roar high above the ground.",
-    answer: "Correct",
-    correction: "Using 'a most' as a synonym for 'a very' is grammatically correct.",
-  },
-  {
-    id: 9,
-    sentence: "While there are over two hundred geysers in Yellowstone, some shoot water more high than others.",
-    answer: "Incorrect",
-    correction: "Should be 'higher' (short adjective).",
-  },
-  {
-    id: 10,
-    sentence: "Some erupt oftener than others.",
-    answer: "Incorrect",
-    correction: "Should be 'more often'.",
-  },
-  {
-    id: 11,
-    sentence: "Old Faithful is famouser than the other geysers in the park.",
-    answer: "Incorrect",
-    correction: "Should be 'more famous'.",
-  },
-  {
-    id: 12,
-    sentence: "It spurts a stream of hot steaming water higher than one hundred feet into the air.",
-    answer: "Correct",
-    correction: "Correct use of 'higher than'.",
-  },
-  {
-    id: 13,
-    sentence: "This most splendid geyser erupts from every half hour to every two hours.",
-    answer: "Correct",
-    correction: "Correct usage.",
-  },
-  {
-    id: 14,
-    sentence: "For many visitors of Yellowstone, seeing Old Faithful is their funnest memory of the park.",
-    answer: "Incorrect",
-    correction: "Should be 'most fun memory'.",
-  },
-  {
-    id: 15,
-    sentence: "After seeing Old Faithful, Sandra understood more well how the term geyser came from the Icelandic word geysir.",
-    answer: "Incorrect",
-    correction: "Should be 'better understood'.",
-  },
-];
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-const App = () => {
-  const [currentStep, setCurrentStep] = useState('start'); // 'start', 'quiz', 'result'
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [userAnswer, setUserAnswer] = useState(null);
-  const [isShowingFeedback, setIsShowingFeedback] = useState(false);
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
 
-  const currentQuestion = QUESTIONS[currentIndex];
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  const handleAnswer = (choice) => {
-    if (isShowingFeedback) return;
+        .btn-gradient {
+            background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+            box-shadow: 0 10px 20px -10px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -10px rgba(6, 182, 212, 0.6);
+        }
+
+        .btn-gradient:active {
+            transform: translateY(0);
+        }
+
+        /* Hide sections by default */
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
     
-    setUserAnswer(choice);
-    setIsShowingFeedback(true);
-    
-    if (choice === currentQuestion.answer) {
-      setScore(prev => prev + 1);
-    }
-  };
-
-  const nextQuestion = () => {
-    if (currentIndex < QUESTIONS.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setUserAnswer(null);
-      setIsShowingFeedback(false);
-    } else {
-      setCurrentStep('result');
-    }
-  };
-
-  const restartQuiz = () => {
-    setCurrentIndex(0);
-    setScore(0);
-    setUserAnswer(null);
-    setIsShowingFeedback(false);
-    setCurrentStep('quiz');
-  };
-
-  const progress = ((currentIndex + 1) / QUESTIONS.length) * 100;
-
-  return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans selection:bg-cyan-500 flex flex-col items-center justify-center p-4">
-      {/* Background Decor */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full"></div>
-      </div>
-
-      {currentStep === 'start' && (
-        <div className="relative max-w-lg w-full text-center space-y-8 animate-in fade-in zoom-in duration-500">
-          <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl space-y-6">
-            <div className="w-20 h-20 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform">
-              <MapPin size={40} className="text-white" />
-            </div>
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-200">
-              Yellowstone Grammar Challenge
-            </h1>
-            <p className="text-slate-400 text-lg">
-              Test your knowledge of comparative and superlative adjectives! Identify which sentences are grammatically correct.
-            </p>
-            <button
-              onClick={() => setCurrentStep('quiz')}
-              className="group relative w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold text-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-            >
-              Start Quiz
-            </button>
-          </div>
-        </div>
-      )}
-
-      {currentStep === 'quiz' && (
-        <div className="relative max-w-2xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Progress Bar */}
-          <div className="mb-6 flex items-center gap-4">
-            <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-              <div 
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            <span className="text-slate-400 font-mono text-sm">
-              {currentIndex + 1} / {QUESTIONS.length}
-            </span>
-          </div>
-
-          {/* Question Card */}
-          <div className="bg-slate-800/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-             {/* Question Number Badge */}
-             <div className="absolute top-0 right-0 bg-cyan-500/20 px-6 py-2 rounded-bl-3xl border-b border-l border-white/10 text-cyan-400 font-bold tracking-widest text-xs uppercase">
-               Sentence Check
-             </div>
-
-            <div className="mt-4 space-y-8">
-              <div className="min-h-[100px] flex items-center">
-                <h2 className="text-2xl font-medium leading-relaxed italic text-slate-100">
-                  "{currentQuestion.sentence}"
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {['Correct', 'Incorrect'].map((choice) => {
-                  const isCorrectAnswer = choice === currentQuestion.answer;
-                  const isUserSelection = userAnswer === choice;
-                  
-                  let buttonStyle = "border-white/10 hover:border-cyan-500/50 hover:bg-white/5";
-                  let icon = null;
-
-                  if (isShowingFeedback) {
-                    if (isCorrectAnswer) {
-                      buttonStyle = "border-emerald-500/50 bg-emerald-500/20 text-emerald-400";
-                      icon = <CheckCircle2 className="shrink-0" />;
-                    } else if (isUserSelection) {
-                      buttonStyle = "border-rose-500/50 bg-rose-500/20 text-rose-400";
-                      icon = <XCircle className="shrink-0" />;
-                    } else {
-                      buttonStyle = "opacity-40 border-white/5";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={choice}
-                      disabled={isShowingFeedback}
-                      onClick={() => handleAnswer(choice)}
-                      className={`
-                        flex items-center justify-between p-6 rounded-2xl border-2 font-bold text-lg transition-all duration-300
-                        ${buttonStyle}
-                        ${!isShowingFeedback && "hover:scale-[1.02] active:scale-[0.98] shadow-lg"}
-                      `}
-                    >
-                      <span>{choice}</span>
-                      {icon}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Feedback Section */}
-            {isShowingFeedback && (
-              <div className="mt-8 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className={`p-4 rounded-xl flex items-start gap-3 ${userAnswer === currentQuestion.answer ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300'}`}>
-                  <Info size={20} className="mt-1 shrink-0" />
-                  <p className="text-sm font-medium">{currentQuestion.correction}</p>
-                </div>
-                
-                <button
-                  onClick={nextQuestion}
-                  className="mt-6 w-full py-4 flex items-center justify-center gap-2 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-200 transition-colors"
-                >
-                  {currentIndex === QUESTIONS.length - 1 ? 'See Results' : 'Next Sentence'}
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {currentStep === 'result' && (
-        <div className="relative max-w-lg w-full text-center animate-in zoom-in duration-700">
-          <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 p-10 rounded-[3rem] shadow-2xl space-y-8 overflow-hidden">
-             {/* Decorative shine */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50"></div>
-            
-            <div className="relative inline-block">
-                <div className="absolute inset-0 bg-cyan-500 blur-[40px] opacity-30"></div>
-                <Award size={100} className="relative text-cyan-400 mx-auto" />
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-slate-400">Your Score</h2>
-              <div className="text-8xl font-black text-white tracking-tighter drop-shadow-[0_10px_10px_rgba(255,255,255,0.1)]">
-                {score}<span className="text-3xl text-slate-600 font-normal ml-2">/ {QUESTIONS.length}</span>
-              </div>
-            </div>
-
-            <p className="text-slate-300 text-lg px-4 italic">
-              {score === QUESTIONS.length ? "Perfect! You're a grammar expert!" : 
-               score > 10 ? "Great job! You've got a strong handle on comparisons." :
-               "Keep practicing! Yellowstone is full of wonders, and so is grammar."}
-            </p>
-
-            <button
-              onClick={restartQuiz}
-              className="group flex items-center justify-center gap-2 w-full py-5 bg-gradient-to-r from-cyan-600 to-blue-700 rounded-2xl font-bold text-xl hover:shadow-[0_10px_20px_rgba(0,0,0,0.4)] transition-all transform hover:-translate-y-1 active:translate-y-0"
-            >
-              <RotateCcw size={24} className="group-hover:rotate-[-45deg] transition-transform" />
-              Try Again
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Footer Info */}
-      <div className="mt-8 text-slate-500 text-sm font-medium uppercase tracking-widest flex items-center gap-2">
-        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></div>
-        Interactive Learning Module
-      </div>
+    <!-- Background Decor -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-600/10 blur-[120px] rounded-full"></div>
     </div>
-  );
-};
 
-export default App;
+    <!-- Container -->
+    <main id="app" class="relative z-10 w-full max-w-2xl">
+        
+        <!-- START SCREEN -->
+        <section id="start-screen" class="animate-fade-in text-center space-y-8">
+            <div class="glass-panel p-10 rounded-[2.5rem] shadow-2xl space-y-6">
+                <div class="w-20 h-20 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg transform rotate-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-200">
+                    Yellowstone Grammar
+                </h1>
+                <p class="text-slate-400 text-lg max-w-md mx-auto">
+                    Master comparative and superlative adjectives in the wild. Check if the sentences are grammatically correct.
+                </p>
+                <button onclick="quiz.start()" class="btn-gradient w-full py-4 rounded-xl font-bold text-xl transition-all">
+                    Begin Journey
+                </button>
+            </div>
+        </section>
+
+        <!-- QUIZ SCREEN -->
+        <section id="quiz-screen" class="hidden animate-fade-in">
+            <!-- Progress -->
+            <div class="mb-6 flex items-center gap-4">
+                <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="question-counter" class="text-slate-400 font-mono text-sm">1 / 15</span>
+            </div>
+
+            <!-- Card -->
+            <div class="glass-panel rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-cyan-500/20 px-6 py-2 rounded-bl-3xl border-b border-l border-white/10 text-cyan-400 font-bold tracking-widest text-xs uppercase">
+                    Sentence Check
+                </div>
+
+                <div class="mt-4 space-y-8">
+                    <div class="min-h-[120px] flex items-center">
+                        <h2 id="sentence-text" class="text-2xl font-medium leading-relaxed italic text-slate-100">
+                            "Sentence text goes here..."
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container">
+                        <button onclick="quiz.answer('Correct')" class="option-btn flex items-center justify-between p-6 rounded-2xl border-2 border-white/10 font-bold text-lg hover:border-cyan-500/50 transition-all">
+                            <span>Correct</span>
+                        </button>
+                        <button onclick="quiz.answer('Incorrect')" class="option-btn flex items-center justify-between p-6 rounded-2xl border-2 border-white/10 font-bold text-lg hover:border-cyan-500/50 transition-all">
+                            <span>Incorrect</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div id="feedback-area" class="hidden mt-8 animate-fade-in">
+                    <div id="feedback-box" class="p-4 rounded-xl flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-1 shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <p id="feedback-text" class="text-sm font-medium"></p>
+                    </div>
+                    
+                    <button onclick="quiz.next()" class="mt-6 w-full py-4 flex items-center justify-center gap-2 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-200 transition-colors">
+                        <span id="next-btn-text">Next Sentence</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULT SCREEN -->
+        <section id="result-screen" class="hidden animate-fade-in text-center">
+            <div class="glass-panel p-10 rounded-[3rem] shadow-2xl space-y-8">
+                <div class="relative inline-block">
+                    <div class="absolute inset-0 bg-cyan-500 blur-[40px] opacity-30"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="relative mx-auto"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-semibold text-slate-400">Final Score</h2>
+                    <div class="text-8xl font-black text-white tracking-tighter">
+                        <span id="final-score">0</span><span class="text-3xl text-slate-600 font-normal ml-2">/ 15</span>
+                    </div>
+                </div>
+
+                <p id="result-msg" class="text-slate-300 text-lg italic"></p>
+
+                <button onclick="quiz.restart()" class="btn-gradient flex items-center justify-center gap-2 w-full py-5 rounded-2xl font-bold text-xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    Try Again
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 text-slate-500 text-xs font-medium uppercase tracking-widest flex items-center gap-2 relative z-10">
+        <div class="w-1.5 h-1.5 rounded-full bg-cyan-500"></div>
+        Yellowstone Grammar Challenge
+    </footer>
+
+    <script>
+        const QUESTIONS = [
+            { sentence: "She visited Yellowstone National Park, the most old national park in the world.", answer: "Incorrect", correction: "Should be 'the oldest national park'." },
+            { sentence: "It is also the largest park in the United States.", answer: "Correct", correction: "Correct use of superlative 'largest'." },
+            { sentence: "Of all the U.S. parks, Yellowstone has the most extensive wildlife preserve.", answer: "Correct", correction: "Correct use of 'most extensive'." },
+            { sentence: "The park has much natural wonders that are amazing to behold.", answer: "Incorrect", correction: "Should be 'many natural wonders' (wonders are countable)." },
+            { sentence: "Among the park's better attractions are huge canyons, cascading waterfalls, and clear blue lakes.", answer: "Incorrect", correction: "Should be 'best attractions' when comparing more than two things." },
+            { sentence: "There are most geysers and hot springs than any other place in the world.", answer: "Incorrect", correction: "Should be 'more geysers' for a comparison with 'than'." },
+            { sentence: "Geysers are one of nature's most interesting phenomena.", answer: "Correct", correction: "Correct use of 'most interesting'." },
+            { sentence: "Geysers make a most spectacular display as they roar high above the ground.", answer: "Correct", correction: "Using 'a most' as a synonym for 'a very' is grammatically correct." },
+            { sentence: "While there are over two hundred geysers in Yellowstone, some shoot water more high than others.", answer: "Incorrect", correction: "Should be 'higher' (short adjective)." },
+            { sentence: "Some erupt oftener than others.", answer: "Incorrect", correction: "Should be 'more often'." },
+            { sentence: "Old Faithful is famouser than the other geysers in the park.", answer: "Incorrect", correction: "Should be 'more famous'." },
+            { sentence: "It spurts a stream of hot steaming water higher than one hundred feet into the air.", answer: "Correct", correction: "Correct use of 'higher than'." },
+            { sentence: "This most splendid geyser erupts from every half hour to every two hours.", answer: "Correct", correction: "Correct usage." },
+            { sentence: "For many visitors of Yellowstone, seeing Old Faithful is their funnest memory of the park.", answer: "Incorrect", correction: "Should be 'most fun memory'." },
+            { sentence: "After seeing Old Faithful, Sandra understood more well how the term geyser came from the Icelandic word geysir.", answer: "Incorrect", correction: "Should be 'better understood'." }
+        ];
+
+        const quiz = {
+            currentIndex: 0,
+            score: 0,
+            isShowingFeedback: false,
+
+            start() {
+                this.currentIndex = 0;
+                this.score = 0;
+                this.showScreen('quiz-screen');
+                this.renderQuestion();
+            },
+
+            showScreen(screenId) {
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.add('hidden');
+                document.getElementById(screenId).classList.remove('
